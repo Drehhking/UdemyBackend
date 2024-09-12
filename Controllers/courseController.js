@@ -185,7 +185,7 @@ let updatePurchaseStatus = async (req, res) => {
   const { courseId, userId } = req.body;
 
   try {
-    const course = await Upload.findById(courseId);
+    const course = await Upload.findById( courseId);
     if (!course) {
       return res.status(404).send({ message: "Course not found", status: false });
     }
