@@ -182,6 +182,7 @@ const getCourseById = async (req, res) => {
 
 let updatePurchaseStatus = async (req, res) => {
   const { courseId, userId } = req.body;
+  console.log(req.body)
 
   try {
     // Find and update the specific course's purchase status
