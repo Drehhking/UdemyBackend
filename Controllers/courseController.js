@@ -285,6 +285,20 @@ const getAllCategories = async (req, res) => {
   }
 };
 
+// Fetch all courses by category
+
+
+// Fetch purchased courses by user
+
+
+let getAllCoursesForAdmin = async (req, res) => {
+  try {
+    const courses = await Upload.find(); 
+    res.status(200).json({ status: 'success', courses }); // Sending courses as an array
+  } catch (err) {
+    res.status(500).send({ message: "Internal server error" });
+  }
+};
 
 
 
@@ -292,4 +306,4 @@ const getAllCategories = async (req, res) => {
 
 
 
-module.exports = { getallUsers, deleteUser, uploadCourse, getAllCourses, getCourseById, updatePurchaseStatus, getAllCategories };
+module.exports = { getallUsers, deleteUser, uploadCourse, getAllCourses, getCourseById, updatePurchaseStatus, getAllCategories, getAllCoursesForAdmin};
