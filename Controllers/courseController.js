@@ -238,9 +238,9 @@ let updatePurchaseStatus = async (req, res) => {
     console.log(req.body)
   
     // Validate input
-    if (!email || !courseId || typeof isPurchased !== 'boolean') {
-      return res.status(400).json({ message: "Invalid input" });
-    }
+    // if (!email || !courseId || typeof isPurchased !== 'boolean') {
+    //   return res.status(400).json({ message: "Invalid input" });
+    // }
   
     // Find user by email
     const user = await User.findOne({email});
@@ -261,6 +261,8 @@ let updatePurchaseStatus = async (req, res) => {
     // Update purchase status
     course.isPurchased = isPurchased;
     await user.save();
+
+    await Upload.findByIdAndUpdate(courseId, { isPurchased: true });
   
     return res.status(200).json({ message: "Purchase status updated successfully" });
   } catch (error) {
