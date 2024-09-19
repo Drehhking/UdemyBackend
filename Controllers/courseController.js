@@ -125,7 +125,7 @@ let uploadCourse = async (req, res) => {
     ratings,
     students,
     stars,
-    isPurchased: false, 
+    isPurchased: false
   });
   if (!createCourse) {
     return res.status(404).send({ message: "Course cannot be created at the moment", status: false });
@@ -142,10 +142,9 @@ let uploadCourse = async (req, res) => {
   }
 };
 
-// In your courses controller
 let getAllCourses = async (req, res) => {
   try {
-    const courses = await Upload.find(); // Make sure you are using the correct model
+    const courses = await Upload.find(); 
     res.status(200).json({ status: 'success', courses }); // Sending courses as an array
   } catch (err) {
     res.status(500).send({ message: "Internal server error" });
@@ -182,79 +181,112 @@ const getCourseById = async (req, res) => {
 };
 
 let updatePurchaseStatus = async (req, res) => {
-  const { courseId, userId } = req.body;
+  // const { courseId, userId } = req.body;
+
+  // try {
+  //   // Find and update the specific course's purchase status
+  //   const course = await Upload.findById(courseId);
+  //   if (!course) {
+  //     return res.status(404).send({ message: "Course not found", status: false });
+  //   }
+
+  //   // Find and update the user's purchasedCourses list
+  //   const user = await User.findById(userId);
+  //   if (!user) {
+  //     return res.status(404).send({ message: "User not found", status: false });
+  //   }
+
+  //   if (!user.purchasedCourses.includes(courseId)) {
+  //     // await User.save();
+  //     await User.findByIdAndUpdate(userId, { $push: { purchasedCourses: courseId } });
+  //     // await Upload.findByIdAndUpdate(courseId, { isPurchased: true });
+
+  //     await Upload.findByIdAndUpdate(courseId, { isPurchased: true });
+  //   }
+
+  //   // Only update the specific course
+
+  //   res.status(200).send({ message: "Course purchased successfully", status: "ok" });
+  // } catch (error) {
+  //   res.status(500).send({ message: "Internal server error", status: false });
+  // }
+
+  // const { courseId, userId } = req.body;
+
+  // try {
+  //   // Find the user and update purchased courses
+  //   const user = await User.findById(userId);
+  //   if (!user) return res.status(404).send({ message: 'User not found' });
+
+  //   // Add course to purchased courses if not already added
+  //   if (!user.purchasedCourses.includes(courseId)) {
+  //     user.purchasedCourses.push(courseId);
+  //     await user.save();
+
+  //     // Update the course's purchase status
+  //     await Upload.findByIdAndUpdate(courseId, { isPurchased: true });
+  //   }
+
+  //   res.send({ message: 'Course purchased successfully' });
+  // } catch (error) {
+  //   res.status(500).send({ message: 'Error updating purchase status', error });
+  // }
+
 
   try {
-    const course = await Upload.findById( courseId);
-    if (!course) {
-      return res.status(404).send({ message: "Course not found", status: false });
+    const { email, courseId, isPurchased } = req.body;
+    console.log(req.body)
+  
+    // Validate input
+    if (!email || !courseId || typeof isPurchased !== 'boolean') {
+      return res.status(400).json({ message: "Invalid input" });
     }
+  
+    // Find user by email
+    const user = await User.findOne({email});
+    console.log("Received email:", email);
+    console.log("Received email:", user);
 
-    const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).send({ message: "User not found", status: false });
+      console.log("User not found with email:", email); 
+      return res.status(404).json({ message: "User not found" });
     }
-
-    if (!user.purchasedCourses.includes(courseId)) {
-      await User.findByIdAndUpdate(userId, { $push: { purchasedCourses: courseId } });
+  
+    // Find course in user's courses
+    const course = user.courses.find(c => c.courseId === courseId);
+    if (!course) {
+      return res.status(404).json({ message: "Course not found in user's courses" });
     }
-
-    res.status(200).send({ message: "Course purchased successfully", status: "ok" });
+  
+    // Update purchase status
+    course.isPurchased = isPurchased;
+    await user.save();
+  
+    return res.status(200).json({ message: "Purchase status updated successfully" });
   } catch (error) {
-    res.status(500).send({ message: "Internal server error", status: false });
+    console.error("Error updating purchase status:", error); // Log the error for debugging
+    return res.status(500).json({ message: "Error updating purchase status", error: error.message });
+  }
+  
+};
+
+
+
+const getAllCategories = async (req, res) => {
+  try {
+    const enumValues = Upload.schema.path('courseCategory').enumValues; // This retrieves all enum values
+    res.status(200).json({ status: 'success', categories: enumValues });
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ status: 'error', message: 'Internal server error' });
   }
 };
 
 
-// const generateCertificate = async (req, res) => {
-  // const { userId, categoryId } = req.body;
-// 
-  // try {
-    // const user = await User.findById(userId);
-    // if (!user) {
-      // return res.status(404).send({ message: "User not found", status: false });
-    // }
-// 
-    // const coursesInCategory = await Upload.find({ courseCategory: categoryId });
-    // if (!coursesInCategory.length) {
-      // return res.status(404).send({ message: "No courses in this category", status: false });
-    // }
-// 
-    // const allPurchased = coursesInCategory.every(course => 
-      // user.purchasedCourses.includes(course._id)
-    // );
-// 
-    // if (!allPurchased) {
-      // return res.status(400).send({ message: "User hasn't completed all courses", status: false });
-    // }
-// 
-    // const certificateId = `CERT-${Date.now()}-${categoryId}`;
-    // await User.findByIdAndUpdate(userId, {
-      // $push: { certificates: { categoryId, certificateId, date: new Date() } }
-    // });
-// 
-    // res.status(200).send({ message: "Certificate generated", certificateId, status: "ok" });
-  // } catch (error) {
-    // console.error("Error generating certificate:", error);
-    // res.status(500).send({ message: "Internal server error", status: false });
-  // }
-// };
 
 
 
 
 
 
-
-
-
-// Fetch courses by category
-
-
-
-
-
-
-
-
-module.exports = { getallUsers, deleteUser, uploadCourse, getAllCourses, getCourseById, updatePurchaseStatus };
+module.exports = { getallUsers, deleteUser, uploadCourse, getAllCourses, getCourseById, updatePurchaseStatus, getAllCategories };

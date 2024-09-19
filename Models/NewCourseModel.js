@@ -93,7 +93,7 @@ const courseSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-//   videoAccessible: { type: Boolean, default: false },
+    isPurchased: { type: Boolean, default: false },
 })
 
 const Upload = mongoose.model('Upload', courseSchema);
