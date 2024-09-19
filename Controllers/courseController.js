@@ -181,35 +181,35 @@ const getCourseById = async (req, res) => {
 };
 
 let updatePurchaseStatus = async (req, res) => {
-  // const { courseId, userId } = req.body;
+  const { courseId, userId } = req.body;
 
-  // try {
-  //   // Find and update the specific course's purchase status
-  //   const course = await Upload.findById(courseId);
-  //   if (!course) {
-  //     return res.status(404).send({ message: "Course not found", status: false });
-  //   }
+  try {
+    // Find and update the specific course's purchase status
+    const course = await Upload.findById(courseId);
+    if (!course) {
+      return res.status(404).send({ message: "Course not found", status: false });
+    }
 
-  //   // Find and update the user's purchasedCourses list
-  //   const user = await User.findById(userId);
-  //   if (!user) {
-  //     return res.status(404).send({ message: "User not found", status: false });
-  //   }
+    // Find and update the user's purchasedCourses list
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send({ message: "User not found", status: false });
+    }
 
-  //   if (!user.purchasedCourses.includes(courseId)) {
-  //     // await User.save();
-  //     await User.findByIdAndUpdate(userId, { $push: { purchasedCourses: courseId } });
-  //     // await Upload.findByIdAndUpdate(courseId, { isPurchased: true });
+    if (!user.purchasedCourses.includes(courseId)) {
+      // await User.save();
+      await User.findByIdAndUpdate(userId, { $push: { purchasedCourses: courseId } });
+      // await Upload.findByIdAndUpdate(courseId, { isPurchased: true });
 
-  //     await Upload.findByIdAndUpdate(courseId, { isPurchased: true });
-  //   }
+      await Upload.findByIdAndUpdate(courseId, { isPurchased: true });
+    }
 
-  //   // Only update the specific course
+    // Only update the specific course
 
-  //   res.status(200).send({ message: "Course purchased successfully", status: "ok" });
-  // } catch (error) {
-  //   res.status(500).send({ message: "Internal server error", status: false });
-  // }
+    res.status(200).send({ message: "Course purchased successfully", status: "ok" });
+  } catch (error) {
+    res.status(500).send({ message: "Internal server error", status: false });
+  }
 
   // const { courseId, userId } = req.body;
 
@@ -233,9 +233,9 @@ let updatePurchaseStatus = async (req, res) => {
   // }
 
 
-  try {
-    const { email, courseId, isPurchased } = req.body;
-    console.log(req.body)
+  // try {
+  //   const { email, courseId, isPurchased } = req.body;
+  //   console.log(req.body)
   
     // Validate input
     // if (!email || !courseId || typeof isPurchased !== 'boolean') {
@@ -243,32 +243,32 @@ let updatePurchaseStatus = async (req, res) => {
     // }
   
     // Find user by email
-    const user = await User.findOne({email});
-    console.log("Received email:", email);
-    console.log("Received email:", user);
+  //   const user = await User.findOne({email});
+  //   console.log("Received email:", email);
+  //   console.log("Received email:", user);
 
-    if (!user) {
-      console.log("User not found with email:", email); 
-      return res.status(404).json({ message: "User not found" });
-    }
+  //   if (!user) {
+  //     console.log("User not found with email:", email); 
+  //     return res.status(404).json({ message: "User not found" });
+  //   }
   
-    // Find course in user's courses
-    const course = user.courses.find(c => c.courseId === courseId);
-    if (!course) {
-      return res.status(404).json({ message: "Course not found in user's courses" });
-    }
+  //   // Find course in user's courses
+  //   const course = user.courses.find(c => c.courseId === courseId);
+  //   if (!course) {
+  //     return res.status(404).json({ message: "Course not found in user's courses" });
+  //   }
   
-    // Update purchase status
-    course.isPurchased = isPurchased;
-    await user.save();
+  //   // Update purchase status
+  //   course.isPurchased = isPurchased;
+  //   await user.save();
 
-    await Upload.findByIdAndUpdate(courseId, { isPurchased: true });
+  //   await Upload.findByIdAndUpdate(courseId, { isPurchased: true });
   
-    return res.status(200).json({ message: "Purchase status updated successfully" });
-  } catch (error) {
-    console.error("Error updating purchase status:", error); // Log the error for debugging
-    return res.status(500).json({ message: "Error updating purchase status", error: error.message });
-  }
+  //   return res.status(200).json({ message: "Purchase status updated successfully" });
+  // } catch (error) {
+  //   console.error("Error updating purchase status:", error); // Log the error for debugging
+  //   return res.status(500).json({ message: "Error updating purchase status", error: error.message });
+  // }
   
 };
 
