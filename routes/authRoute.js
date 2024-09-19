@@ -1,6 +1,6 @@
 const express = require('express')
 const authController = require('../Controllers/authController.js');
-const {updatePurchaseStatus, getAllCategories ,  } = require('../Controllers/courseController.js')
+const {updatePurchaseStatus, getAllCategories , getAllCoursesForAdmin } = require('../Controllers/courseController.js')
 // const courseController = require('../Controllers/courseController')
 
 const router = express.Router();
