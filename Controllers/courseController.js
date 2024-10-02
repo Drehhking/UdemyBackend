@@ -288,22 +288,40 @@ const getAllCategories = async (req, res) => {
 // Fetch all courses by category
 
 
-// Fetch purchased courses by user
+const getCoursesByCategory = async (req, res) => {
+  console.log(req.body)
+  const { category } = req.body;
 
-
-let getAllCoursesForAdmin = async (req, res) => {
   try {
-    const courses = await Upload.find(); 
-    res.status(200).json({ status: 'success', courses }); // Sending courses as an array
-  } catch (err) {
-    res.status(500).send({ message: "Internal server error" });
+    // Fetch the enum values to validate the category
+    const validCategories = Upload.schema.path('courseCategory').enumValues;
+
+    if (!validCategories.includes(category)) {
+      return res.status(400).json({ status: 'error', message: 'Invalid category' });
+    }
+
+    // Fetch courses by the category
+    const courses = await Upload.find({ courseCategory: category });
+
+    if (!courses || courses.length === 0) {
+      return res.status(404).json({ status: 'error', message: 'No courses found in this category' });
+    }
+
+    res.status(200).json({ status: 'success', courses });
+  } catch (error) {
+    console.error('Error fetching courses by category:', error);
+    res.status(500).json({ status: 'error', message: 'Internal server error' });
   }
 };
 
 
 
+// Fetch purchased courses by user
 
 
 
 
-module.exports = { getallUsers, deleteUser, uploadCourse, getAllCourses, getCourseById, updatePurchaseStatus, getAllCategories, getAllCoursesForAdmin};
+
+
+
+module.exports = { getallUsers, deleteUser, uploadCourse, getAllCourses, getCourseById, updatePurchaseStatus, getAllCategories, getCoursesByCategory};
