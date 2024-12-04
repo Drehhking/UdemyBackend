@@ -313,6 +313,51 @@ const getCoursesByCategory = async (req, res) => {
     res.status(500).json({ status: 'error', message: 'Internal server error' });
   }
 };
+const uploadProfileImage = async (req, res) => {
+  const { userId } = req.body; // Ensure the userId is passed in the request
+  const { image } = req.body; // Ensure the image (base64) is passed in the request
+
+  if (!userId || !image) {
+    return res.status(400).json({
+      status: "error",
+      message: "User ID and image are required",
+    });
+  }
+
+  try {
+    // Upload the image to Cloudinary
+    const result = await cloudinary.uploader.upload(image, {
+      folder: "profile_pictures",
+    });
+
+    // Update the user's profile with the image URL
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profileImage: result.secure_url }, // Update the 'profileImage' field in the user model
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "Profile image uploaded successfully",
+      profileImage: updatedUser.profileImage,
+    });
+  } catch (error) {
+    console.error("Error uploading profile image:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+};
+
 
 
 
@@ -323,5 +368,4 @@ const getCoursesByCategory = async (req, res) => {
 
 
 
-
-module.exports = { getallUsers, deleteUser, uploadCourse, getAllCourses, getCourseById, updatePurchaseStatus, getAllCategories, getCoursesByCategory};
+module.exports = { getallUsers, deleteUser, uploadCourse, getAllCourses, getCourseById, updatePurchaseStatus, getAllCategories, getCoursesByCategory, uploadProfileImage};
