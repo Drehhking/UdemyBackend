@@ -18,7 +18,8 @@ const userSchema = new mongoose.Schema({
         type: String,
         required : true,
     },
-    purchasedCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }], // Store purchased course IDs
+    profileImage: { type: String, default: "" },
+    purchasedCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }] // Store purchased course IDs
 });
 
 const User = mongoose.model('User', userSchema);
