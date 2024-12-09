@@ -313,56 +313,41 @@ const getCoursesByCategory = async (req, res) => {
     res.status(500).json({ status: 'error', message: 'Internal server error' });
   }
 };
+
 const uploadProfileImage = async (req, res) => {
-  const { userId } = req.body; // Ensure the userId is passed in the request
-  const { image } = req.body; // Ensure the image (base64) is passed in the request
+  const { userId } = req.body; // Replace with `email` if needed
+  const { image } = req.body; // The base64 image string from the client
 
   if (!userId || !image) {
-    return res.status(400).json({
-      status: "error",
-      message: "User ID and image are required",
-    });
+    return res.status(400).json({ message: "User ID or image is missing", status: false });
   }
 
   try {
-    // Upload the image to Cloudinary
-    const result = await cloudinary.uploader.upload(image, {
-      folder: "profile_pictures",
-    });
-
-    // Update the user's profile with the image URL
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { profileImage: result.secure_url }, // Update the 'profileImage' field in the user model
-      { new: true } // Return the updated document
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({
-        status: "error",
-        message: "User not found",
-      });
+    // Find the user by ID
+    const user = await User.findById(userId); // Replace with `findOne({ email })` if you're using email
+    if (!user) {
+      return res.status(404).json({ message: "User not found", status: false });
     }
 
+    // Upload the image to Cloudinary
+    const uploadedImage = await cloudinary.uploader.upload(image, {
+      folder: "user_profiles", // Store images in a specific folder
+    });
+
+    // Update the user's profile with the new image URL
+    user.profileImage = uploadedImage.secure_url;
+    await user.save();
+
     res.status(200).json({
-      status: "success",
       message: "Profile image uploaded successfully",
-      profileImage: updatedUser.profileImage,
+      profileImage: uploadedImage.secure_url,
+      status: "ok",
     });
   } catch (error) {
     console.error("Error uploading profile image:", error);
-    res.status(500).json({
-      status: "error",
-      message: "Internal server error",
-    });
+    res.status(500).json({ message: "Internal server error", status: false });
   }
 };
-
-
-
-
-// Fetch purchased courses by user
-
 
 
 

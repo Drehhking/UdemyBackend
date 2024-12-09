@@ -18,8 +18,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required : true,
     },
-    profileImage: { type: String, default: "" },
-    purchasedCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }] // Store purchased course IDs
+    purchasedCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }] ,// Store purchased course IDs
+    profileImage: {
+        type: String,
+        default: "", // Default to an empty string if no image is uploaded
+      },
 });
 
 const User = mongoose.model('User', userSchema);
