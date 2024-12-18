@@ -4,6 +4,7 @@ const Upload = require("../Models/NewCourseModel");
 const Category = require("../Models/categoryModel")
 const { cloudinary } = require("../Middleware/cloudinary");
 require('../.env');
+const router = express.Router();
 // Upload.schema.add({ isPurchased: { type: Boolean, default: false } });
 
 let getallUsers = async (req, res) => {
@@ -349,8 +350,22 @@ const uploadProfileImage = async (req, res) => {
   }
 };
 
+const purchasedCourses = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const user = await User.findById(userId).populate("purchasedCourses"); // Use populate if you store references
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.status(200).json(user.purchasedCourses);
+  } catch (error) {
+    console.error("Error fetching purchased courses:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
 
 
 
 
-module.exports = { getallUsers, deleteUser, uploadCourse, getAllCourses, getCourseById, updatePurchaseStatus, getAllCategories, getCoursesByCategory, uploadProfileImage};
+
+module.exports = { getallUsers, deleteUser, uploadCourse, getAllCourses, getCourseById, updatePurchaseStatus, getAllCategories, getCoursesByCategory, uploadProfileImage, purchasedCourses};
