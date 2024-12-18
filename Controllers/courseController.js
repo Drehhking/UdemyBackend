@@ -353,7 +353,7 @@ const uploadProfileImage = async (req, res) => {
 const purchasedCourses = async (req, res) => {
   const { userId } = req.params;
   try {
-    const user = await User.findById(userId).find("purchasedCourses"); // Use populate if you store references
+    const user = await User.findById(userId).populate("purchasedCourses"); // Use populate if you store references
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
