@@ -4,7 +4,7 @@ const Upload = require("../Models/NewCourseModel");
 const Category = require("../Models/categoryModel")
 const { cloudinary } = require("../Middleware/cloudinary");
 require('../.env');
-const router = express.Router();
+// const router = express.Router();
 // Upload.schema.add({ isPurchased: { type: Boolean, default: false } });
 
 let getallUsers = async (req, res) => {
