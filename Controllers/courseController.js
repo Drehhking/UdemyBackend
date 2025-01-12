@@ -316,6 +316,9 @@ const certificationPage = async (req, res) => {
     const allCourses = await Upload.find(); // Fetch all uploaded courses
     const purchasedCourseIds = user.purchasedCourses || [];
 
+    console.log("All Courses:", allCourses.map(course => course._id.toString()));
+    console.log("Purchased Courses:", purchasedCourseIds);
+
     const isEligible = allCourses.every(course => 
       purchasedCourseIds.includes(course._id.toString())
     );
