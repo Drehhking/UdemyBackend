@@ -4,8 +4,6 @@ const Upload = require("../Models/NewCourseModel");
 const Category = require("../Models/categoryModel")
 const { cloudinary } = require("../Middleware/cloudinary");
 require('../.env');
-const router = express.Router();
-// Upload.schema.add({ isPurchased: { type: Boolean, default: false } });
 
 let getallUsers = async (req, res) => {
   try {
@@ -213,64 +211,6 @@ let updatePurchaseStatus = async (req, res) => {
     res.status(500).send({ message: "Internal server error", status: false });
   }
 
-  // const { courseId, userId } = req.body;
-
-  // try {
-  //   // Find the user and update purchased courses
-  //   const user = await User.findById(userId);
-  //   if (!user) return res.status(404).send({ message: 'User not found' });
-
-  //   // Add course to purchased courses if not already added
-  //   if (!user.purchasedCourses.includes(courseId)) {
-  //     user.purchasedCourses.push(courseId);
-  //     await user.save();
-
-  //     // Update the course's purchase status
-  //     await Upload.findByIdAndUpdate(courseId, { isPurchased: true });
-  //   }
-
-  //   res.send({ message: 'Course purchased successfully' });
-  // } catch (error) {
-  //   res.status(500).send({ message: 'Error updating purchase status', error });
-  // }
-
-
-  // try {
-  //   const { email, courseId, isPurchased } = req.body;
-  //   console.log(req.body)
-  
-    // Validate input
-    // if (!email || !courseId || typeof isPurchased !== 'boolean') {
-    //   return res.status(400).json({ message: "Invalid input" });
-    // }
-  
-    // Find user by email
-  //   const user = await User.findOne({email});
-  //   console.log("Received email:", email);
-  //   console.log("Received email:", user);
-
-  //   if (!user) {
-  //     console.log("User not found with email:", email); 
-  //     return res.status(404).json({ message: "User not found" });
-  //   }
-  
-  //   // Find course in user's courses
-  //   const course = user.courses.find(c => c.courseId === courseId);
-  //   if (!course) {
-  //     return res.status(404).json({ message: "Course not found in user's courses" });
-  //   }
-  
-  //   // Update purchase status
-  //   course.isPurchased = isPurchased;
-  //   await user.save();
-
-  //   await Upload.findByIdAndUpdate(courseId, { isPurchased: true });
-  
-  //   return res.status(200).json({ message: "Purchase status updated successfully" });
-  // } catch (error) {
-  //   console.error("Error updating purchase status:", error); // Log the error for debugging
-  //   return res.status(500).json({ message: "Error updating purchase status", error: error.message });
-  // }
   
 };
 
@@ -364,8 +304,42 @@ const purchasedCourses = async (req, res) => {
   }
 }
 
+const certificationPage = async (req, res) => {
+  try {
+    const userId = req.user.id; // Replace with your auth logic
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const allCourses = await Upload.find(); // Fetch all uploaded courses
+    const purchasedCourseIds = user.purchasedCourses || [];
+
+    const isEligible = allCourses.every(course => 
+      purchasedCourseIds.includes(course._id.toString())
+    );
+
+    if (isEligible) {
+      return res.json({
+        isEligible: true,
+        userDetails: {
+          name: user.name,
+          completionDate: new Date().toLocaleDateString(),
+        },
+      });
+    } else {
+      return res.json({ isEligible: false });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
 
 
 
 
-module.exports = { getallUsers, deleteUser, uploadCourse, getAllCourses, getCourseById, updatePurchaseStatus, getAllCategories, getCoursesByCategory, uploadProfileImage, purchasedCourses};
+
+
+module.exports = { getallUsers, deleteUser, uploadCourse, getAllCourses, getCourseById, updatePurchaseStatus, getAllCategories, getCoursesByCategory, uploadProfileImage, purchasedCourses, certificationPage};
