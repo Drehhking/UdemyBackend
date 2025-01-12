@@ -328,14 +328,26 @@ const certificationPage = async (req, res) => {
     }
 
     // Map user-purchased courses to string IDs for comparison
-    const purchasedCourseIds = Array.isArray(user.purchasedCourses)
-      ? user.purchasedCourses.map((id) => id.toString())
-      : [];
+    // const purchasedCourseIds = Array.isArray(user.purchasedCourses)
+    //   ? user.purchasedCourses.map((id) => id.toString())
+    //   : [];
 
-    // Check if all courses have been purchased
-    const isEligible = allCourses.every((course) =>
-      purchasedCourseIds.includes(course._id.toString())
-    );
+    // // Check if all courses have been purchased
+    // const isEligible = allCourses.every((course) =>
+    //   purchasedCourseIds.includes(course._id.toString())
+    // );
+
+      // Convert all course IDs to strings for comparison
+      const allCourseIds = allCourses.map(course => course._id.toString());
+      const purchasedCourseIds = user.purchasedCourses.map(id => id.toString());
+  
+      console.log("All Courses IDs:", allCourseIds);
+      console.log("Purchased Courses IDs:", purchasedCourseIds);
+  
+      // Check if the user has purchased all courses
+      const isEligible = allCourseIds.every(courseId => purchasedCourseIds.includes(courseId));
+  
+   
 
     if (isEligible) {
       return res.status(200).json({
