@@ -306,47 +306,55 @@ const purchasedCourses = async (req, res) => {
 
 const certificationPage = async (req, res) => {
   try {
-    const userId = req.user.id; // Replace with your auth middleware logic
+    // Extract user ID from request (ensure this matches your authentication middleware logic)
+    const { userId } = req.body; // Updated to use `req.body` for flexibility
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    // Fetch user by ID
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
+    // Fetch all courses
     const allCourses = await Upload.find();
-    if (!allCourses) {
-      return res.status(404).json({ error: "Courses not found" });
+
+    if (!allCourses || allCourses.length === 0) {
+      return res.status(404).json({ error: "No courses available" });
     }
 
+    // Map user-purchased courses to string IDs for comparison
     const purchasedCourseIds = Array.isArray(user.purchasedCourses)
-      ? user.purchasedCourses.map(id => id.toString())
+      ? user.purchasedCourses.map((id) => id.toString())
       : [];
 
-    console.log("All Courses:", allCourses.map(course => course._id.toString()));
-    console.log("Purchased Courses:", purchasedCourseIds);
-
-    const isEligible = allCourses.every(course =>
+    // Check if all courses have been purchased
+    const isEligible = allCourses.every((course) =>
       purchasedCourseIds.includes(course._id.toString())
     );
 
-    console.log("Eligibility Check:", isEligible);
-
     if (isEligible) {
-      return res.json({
+      return res.status(200).json({
         isEligible: true,
         userDetails: {
           name: user.name,
-          completionDate: new Date().toLocaleDateString(),
+          completionDate: new Date().toLocaleDateString(), // Add more details if needed
         },
+        message: "Congratulations! You are eligible for the certificate.",
       });
     } else {
       return res.status(400).json({
-        error: "You are not eligible to obtain a certificate until you purchase all courses.",
+        isEligible: false,
+        message: "You must purchase all courses to be eligible for the certificate.",
       });
     }
   } catch (error) {
-    console.error("Error in certificationPage:", error);
-    res.status(500).json({ error: "Server error" });
+    console.error("Error in certificationPage function:", error);
+    res.status(500).json({ error: "An internal server error occurred" });
   }
 };
 
