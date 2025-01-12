@@ -306,67 +306,62 @@ const purchasedCourses = async (req, res) => {
 
 const certificationPage = async (req, res) => {
   try {
-    // Extract user ID from request (ensure this matches your authentication middleware logic)
-    const { userId } = req.body; // Updated to use `req.body` for flexibility
+    const { userId } = req.body;
 
+    // Validate userId
     if (!userId) {
-      return res.status(400).json({ error: "User ID is required" });
+      console.log("User ID not provided in the request.");
+      return res.status(400).json({ error: "User ID is required." });
     }
 
-    // Fetch user by ID
+    // Fetch user from the database
     const user = await User.findById(userId);
-
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      console.log(`User not found for ID: ${userId}`);
+      return res.status(404).json({ error: "User not found." });
     }
 
-    // Fetch all courses
+    // Fetch all available courses
     const allCourses = await Upload.find();
-
     if (!allCourses || allCourses.length === 0) {
-      return res.status(404).json({ error: "No courses available" });
+      console.log("No courses available in the database.");
+      return res.status(404).json({ error: "No courses found." });
     }
 
-    // Map user-purchased courses to string IDs for comparison
-    // const purchasedCourseIds = Array.isArray(user.purchasedCourses)
-    //   ? user.purchasedCourses.map((id) => id.toString())
-    //   : [];
+    // Extract all course IDs and user's purchased course IDs
+    const allCourseIds = allCourses.map((course) => course._id.toString());
+    const purchasedCourseIds = user.purchasedCourses.map((id) => id.toString());
 
-    // // Check if all courses have been purchased
-    // const isEligible = allCourses.every((course) =>
-    //   purchasedCourseIds.includes(course._id.toString())
-    // );
+    console.log("All Course IDs:", allCourseIds);
+    console.log("Purchased Course IDs:", purchasedCourseIds);
 
-      // Convert all course IDs to strings for comparison
-      const allCourseIds = allCourses.map(course => course._id.toString());
-      const purchasedCourseIds = user.purchasedCourses.map(id => id.toString());
-  
-      console.log("All Courses IDs:", allCourseIds);
-      console.log("Purchased Courses IDs:", purchasedCourseIds);
-  
-      // Check if the user has purchased all courses
-      const isEligible = allCourseIds.every(courseId => purchasedCourseIds.includes(courseId));
-  
-   
+    // Check if user has purchased all courses
+    const hasPurchasedAllCourses = allCourseIds.every((courseId) =>
+      purchasedCourseIds.includes(courseId)
+    );
 
-    if (isEligible) {
+    console.log("Eligibility Check:", hasPurchasedAllCourses);
+
+    if (hasPurchasedAllCourses) {
+      // If eligible, return success message with user details
       return res.status(200).json({
         isEligible: true,
+        message: "Congratulations! You are eligible for the certificate.",
         userDetails: {
           name: user.name,
-          completionDate: new Date().toLocaleDateString(), // Add more details if needed
+          completionDate: new Date().toLocaleDateString(),
         },
-        message: "Congratulations! You are eligible for the certificate.",
       });
     } else {
+      // If not eligible, return error
       return res.status(400).json({
         isEligible: false,
-        message: "You must purchase all courses to be eligible for the certificate.",
+        error: "You are not eligible for the certificate. Complete all courses first.",
       });
     }
   } catch (error) {
     console.error("Error in certificationPage function:", error);
-    res.status(500).json({ error: "An internal server error occurred" });
+    return res.status(500).json({ error: "An unexpected error occurred." });
   }
 };
 
