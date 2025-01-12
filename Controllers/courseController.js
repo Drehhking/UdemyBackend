@@ -304,8 +304,42 @@ const purchasedCourses = async (req, res) => {
   }
 }
 
+const certificationPage = async (req, res) => {
+  try {
+    const userId = req.user.id; // Replace with your auth logic
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const allCourses = await Upload.find(); // Fetch all uploaded courses
+    const purchasedCourseIds = user.purchasedCourses || [];
+
+    const isEligible = allCourses.every(course => 
+      purchasedCourseIds.includes(course._id.toString())
+    );
+
+    if (isEligible) {
+      return res.json({
+        isEligible: true,
+        userDetails: {
+          name: user.name,
+          completionDate: new Date().toLocaleDateString(),
+        },
+      });
+    } else {
+      return res.json({ isEligible: false });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
 
 
 
 
-module.exports = { getallUsers, deleteUser, uploadCourse, getAllCourses, getCourseById, updatePurchaseStatus, getAllCategories, getCoursesByCategory, uploadProfileImage, purchasedCourses};
+
+
+module.exports = { getallUsers, deleteUser, uploadCourse, getAllCourses, getCourseById, updatePurchaseStatus, getAllCategories, getCoursesByCategory, uploadProfileImage, purchasedCourses, certificationPage};

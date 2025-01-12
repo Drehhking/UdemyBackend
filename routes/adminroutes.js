@@ -1,5 +1,5 @@
 const express = require("express")
-const { getallUsers, deleteUser, uploadCourse, getAllCourses, getCourseById, purchasedCourses } = require("../Controllers/courseController")
+const { getallUsers, deleteUser, uploadCourse, getAllCourses, getCourseById, purchasedCourses, uploadProfileImage, certificationPage } = require("../Controllers/courseController")
 
 
 
@@ -16,6 +16,8 @@ adminrouter.post("/uploadCourses", uploadCourse)
 adminrouter.get('/courses', getAllCourses);
 adminrouter.get('/courses/:id', getCourseById);
 adminrouter.get('/purchased-courses/:userId', purchasedCourses)
+adminrouter.get('/certificate-eligibility', certificationPage)
+adminrouter.post('/upload-profile-photo', uploadProfileImage)
 // adminrouter.get('/update-purchase-status', updatePurchaseStatus)
  // Import the middleware
 // Example route that requires authentication
