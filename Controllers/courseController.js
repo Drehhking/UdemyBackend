@@ -305,9 +305,14 @@ const purchasedCourses = async (req, res) => {
 }
 
 const certificationPage = async (req, res) => {
-  try {
-    const { userId } = req.body;
+  console.log("req.body:", req.body);   // For POST body
+  console.log("req.query:", req.query); // For query params
+  console.log("req.params:", req.params); // For URL params
+  console.log("req.headers:", req.headers); // For headers
 
+  const userId = req.body.userId || req.query.userId || req.params.userId || req.headers['user-id'];
+  // const { userId } = req.body;
+  try {
     // Validate userId
     if (!userId) {
       console.log("User ID not provided in the request.");
