@@ -306,19 +306,30 @@ const purchasedCourses = async (req, res) => {
 
 const certificationPage = async (req, res) => {
   try {
-    const userId = req.user.id; // Replace with your auth logic
+    const userId = req.user.id; // Replace with your auth middleware logic
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
-    const allCourses = await Upload.find(); // Fetch all uploaded courses
-    const purchasedCourseIds = user.purchasedCourses || [];
+    const allCourses = await Upload.find();
+    if (!allCourses) {
+      return res.status(404).json({ error: "Courses not found" });
+    }
 
-    const isEligible = allCourses.every(course => 
+    const purchasedCourseIds = Array.isArray(user.purchasedCourses)
+      ? user.purchasedCourses.map(id => id.toString())
+      : [];
+
+    console.log("All Courses:", allCourses.map(course => course._id.toString()));
+    console.log("Purchased Courses:", purchasedCourseIds);
+
+    const isEligible = allCourses.every(course =>
       purchasedCourseIds.includes(course._id.toString())
     );
+
+    console.log("Eligibility Check:", isEligible);
 
     if (isEligible) {
       return res.json({
@@ -329,11 +340,13 @@ const certificationPage = async (req, res) => {
         },
       });
     } else {
-      return res.json({ isEligible: false });
+      return res.status(400).json({
+        error: "You are not eligible to obtain a certificate until you purchase all courses.",
+      });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Server error' });
+    console.error("Error in certificationPage:", error);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
