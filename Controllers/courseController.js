@@ -306,91 +306,6 @@ const purchasedCourses = async (req, res) => {
 }
 
 
-// const certificationPage = async (req, res) => {
-//   console.log("req.body:", req.body); // For POST body
-//   console.log("req.query:", req.query); // For query params
-//   console.log("req.params:", req.params); // For URL params
-//   console.log("req.headers:", req.headers); // For headers
-
-//   let userId = 
-//     req.body.userId || 
-//     req.query.userId || 
-//     req.params.userId || 
-//     req.headers["user-id"];
-
-//   // Extract userId from token if not already provided
-//   if (!userId) {
-//     const token = req.headers.authorization?.split(" ")[1]; // Extract token from Authorization header
-//     if (token) {
-//       try {
-//         const secretKey = process.env.JWT_SECRET || "secretkey123"; // Replace with your actual secret
-//         const decoded = jwt.verify(token, secretKey); // Decode the token
-//         userId = decoded._id; // Extract the user ID
-//       } catch (err) {
-//         console.error("Error verifying token:", err);
-//         return res.status(401).json({ error: "Invalid or expired token." });
-//       }
-//     }
-//   }
-
-//   // Validate userId
-//   if (!userId) {
-//     console.log("User ID not provided in the request.");
-//     return res.status(400).json({ error: "User ID is required." });
-//   }
-
-//   try {
-//     // Fetch user from the database
-//     const user = await User.findById(userId);
-//     if (!user) {
-//       console.log(`User not found for ID: ${userId}`);
-//       return res.status(404).json({ error: "User not found." });
-//     }
-
-//     // Fetch all available courses
-//     const allCourses = await Upload.find();
-//     if (!allCourses || allCourses.length === 0) {
-//       console.log("No courses available in the database.");
-//       return res.status(404).json({ error: "No courses found." });
-//     }
-
-//     // Extract all course IDs and user's purchased course IDs
-//     const allCourseIds = allCourses.map((course) => course._id.toString());
-//     const purchasedCourseIds = user.purchasedCourses.map((id) => id.toString());
-
-//     console.log("All Course IDs:", allCourseIds);
-//     console.log("Purchased Course IDs:", purchasedCourseIds);
-
-//     // Check if user has purchased all courses
-//     const hasPurchasedAllCourses = allCourseIds.every((courseId) =>
-//       purchasedCourseIds.includes(courseId)
-//     );
-
-//     console.log("Eligibility Check:", hasPurchasedAllCourses);
-
-//     if (hasPurchasedAllCourses) {
-//       // If eligible, return success message with user details
-//       return res.status(200).json({
-//         isEligible: true,
-//         message: "Congratulations! You are eligible for the certificate.",
-//         userDetails: {
-//           name: user.name,
-//           completionDate: new Date().toLocaleDateString(),
-//         },
-//       });
-//     } else {
-//       // If not eligible, return error
-//       return res.status(400).json({
-//         isEligible: false,
-//         error: "You are not eligible for the certificate. Complete all courses first.",
-//       });
-//     }
-//   } catch (error) {
-//     console.error("Error in certificationPage function:", error);
-//     return res.status(500).json({ error: "An unexpected error occurred." });
-//   }
-// };
-
 const certificationPage = async (req, res) => {
   console.log("req.body:", req.body); // For POST body
   console.log("req.query:", req.query); // For query params
@@ -454,20 +369,13 @@ const certificationPage = async (req, res) => {
     console.log("Eligibility Check:", hasPurchasedAllCourses);
 
     if (hasPurchasedAllCourses) {
-      // If eligible, check if certificateIssuedAt exists
-      if (!user.certificationIssued) {
-        // Update the user's certificateIssuedAt field
-        user.certificationIssued = new Date();
-        await user.save();
-      }
-
       // If eligible, return success message with user details
       return res.status(200).json({
         isEligible: true,
         message: "Congratulations! You are eligible for the certificate.",
         userDetails: {
           name: user.name,
-          completionDate: user.certificationIssued.toLocaleDateString(),
+          completionDate: new Date().toLocaleDateString(),
         },
       });
     } else {
@@ -482,7 +390,6 @@ const certificationPage = async (req, res) => {
     return res.status(500).json({ error: "An unexpected error occurred." });
   }
 };
-
 
 
 
