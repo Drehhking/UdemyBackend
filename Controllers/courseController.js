@@ -3,6 +3,7 @@ const admin = require("../Models/AdminModel");
 const Upload = require("../Models/NewCourseModel");
 const Category = require("../Models/categoryModel")
 const { cloudinary } = require("../Middleware/cloudinary");
+const jwt = require('jsonwebtoken')
 require('../.env');
 
 let getallUsers = async (req, res) => {
@@ -304,21 +305,41 @@ const purchasedCourses = async (req, res) => {
   }
 }
 
+
 const certificationPage = async (req, res) => {
-  console.log("req.body:", req.body);   // For POST body
+  console.log("req.body:", req.body); // For POST body
   console.log("req.query:", req.query); // For query params
   console.log("req.params:", req.params); // For URL params
   console.log("req.headers:", req.headers); // For headers
 
-  const userId = req.body.userId || req.query.userId || req.params.userId || req.headers['user-id'];
-  // const { userId } = req.body;
-  try {
-    // Validate userId
-    if (!userId) {
-      console.log("User ID not provided in the request.");
-      return res.status(400).json({ error: "User ID is required." });
-    }
+  let userId = 
+    req.body.userId || 
+    req.query.userId || 
+    req.params.userId || 
+    req.headers["user-id"];
 
+  // Extract userId from token if not already provided
+  if (!userId) {
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token from Authorization header
+    if (token) {
+      try {
+        const secretKey = process.env.JWT_SECRET || "secretkey123"; // Replace with your actual secret
+        const decoded = jwt.verify(token, secretKey); // Decode the token
+        userId = decoded._id; // Extract the user ID
+      } catch (err) {
+        console.error("Error verifying token:", err);
+        return res.status(401).json({ error: "Invalid or expired token." });
+      }
+    }
+  }
+
+  // Validate userId
+  if (!userId) {
+    console.log("User ID not provided in the request.");
+    return res.status(400).json({ error: "User ID is required." });
+  }
+
+  try {
     // Fetch user from the database
     const user = await User.findById(userId);
     if (!user) {
