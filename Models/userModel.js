@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
         required : true,
     },
     purchasedCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }] ,// Store purchased course IDs
+    certificationIssued: {
+        issuedAt: Date,
+        courseIds: [mongoose.Schema.Types.ObjectId], // IDs of courses required for certification at the time
+      },
     profileImage: {
         type: String,
         default: "", // Default to an empty string if no image is uploaded
